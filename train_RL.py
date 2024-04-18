@@ -83,9 +83,6 @@ class Workspace:
     def setup(self):
         warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-        if self.cfg.save_models:
-            assert self.cfg.action_repeat % 2 == 0
-
         # create logger
         self.logger = Logger(self.work_dir, use_tb=self.cfg.use_tb)
         env_name = self.cfg.task_name
@@ -299,7 +296,7 @@ class Workspace:
         if suffix is None:
             save_name = 'snapshot.pt'
         else:
-            save_name = 'snapshot' + suffix + '.pt'
+            save_name = 'snapshot_' + suffix + '.pt'
         snapshot = self.work_dir / save_name
         keys_to_save = ['agent', 'timer', '_global_step', '_global_episode']
         payload = {k: self.__dict__[k] for k in keys_to_save}
