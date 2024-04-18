@@ -2,9 +2,7 @@ defaults:
   - _self_
   - task@_global_: door
   - replay_buffer@_global_: numpy
-  - replay_buffer_expert@_global_: numpy
-  - agent@_global_: laifo
-  - expert@_global_: vrl3
+  - agent@_global_: vrl3
   - override hydra/launcher: submitit_local
 
 # task settings
@@ -32,7 +30,6 @@ save_video: false
 save_train_video: false
 use_tb: false
 save_models: false
-local_data_dir: '/home/vittoriogiammarino/Documents/code/VRL3/src/vrl3data/'
 show_computation_time_est: true # provide estimates on computation times
 show_time_est_interval: 2500
 # experiment
@@ -46,12 +43,6 @@ reward_rescale: true # TODO think about this...
 # agent
 lr: 1e-4
 feature_dim: 50
-#discriminator feat
-discriminator_lr: 4e-4
-spectral_norm_bool: false
-GAN_loss: bce
-from_dem: false
-add_aug: true
 
 # pretrained_encoder_config
 pretrained_encoder: false
@@ -76,10 +67,10 @@ num_seed_frames: 4000
 
 hydra:
   run: # this "dir" decides where the training logs are stored
-    dir: ./vrl3data/logs/exp_local/${now:%Y.%m.%d}/${now:%H%M%S}_${hydra.job.override_dirname}
+    dir: ./experiments/exp_${task_name}/RL_only/${agent_name}_pretrained_encoder=${pretrained_encoder}/${now:%H%M%S}_${hydra.job.override_dirname}
   sweep:
-    dir: ./exp/${now:%Y.%m.%d}/${now:%H%M}_${agent_cfg.experiment}
-    subdir: ${hydra.job.num}
+    dir: ./experiments/exp_${task_name}/RL_only/${agent_name}_pretrained_encoder=${pretrained_encoder}/
+    subdir: ${now:%Y.%m.%d}_${now:%H%M}_${hydra.job.override_dirname}
   launcher:
     timeout_min: 4300
     cpus_per_task: 10
@@ -87,4 +78,4 @@ hydra:
     tasks_per_node: 1
     mem_gb: 160
     nodes: 1
-    submitit_folder: ./exp/${now:%Y.%m.%d}/${now:%H%M%S}_${agent_cfg.experiment}/.slurm
+    submitit_folder: ./experiments/exp_${task_name}/RL_only/${agent_name}_pretrained_encoder=${pretrained_encoder}/

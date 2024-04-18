@@ -6,14 +6,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, models, transforms
-from transfer_util import initialize_model
-from stage1_models import BasicBlock, ResNet84
+from utils_folder.transfer_util import initialize_model
+
 import os
 import copy
 from PIL import Image
 import platform
 from numbers import Number
-import utils
+from utils_folder import utils_vrl3 as utils
+
+from utils_folder.resnet import BasicBlock, ResNet84
 
 class RandomShiftsAug(nn.Module):
     def __init__(self, pad):
@@ -474,7 +476,7 @@ class VRL3Agent:
         # batch data
         batch = next(replay_iter)
         if use_sensor: # TODO might want to...?
-            obs, action, reward, discount, next_obs, obs_sensor, obs_sensor_next = utils.to_torch(batch, self.device)
+            obs, obs_sensor, action, reward, discount, next_obs, obs_sensor_next = utils.to_torch(batch, self.device)
         else:
             obs, action, reward, discount, next_obs = utils.to_torch(batch, self.device)
             obs_sensor, obs_sensor_next = None, None

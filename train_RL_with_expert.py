@@ -23,9 +23,8 @@ import hydra
 import torch
 from dm_env import StepType, TimeStep, specs
 
-import utils
+from utils_folder import utils_vrl3 as utils
 from logger import Logger
-from buffers.replay_buffer import ReplayBufferStorage, make_replay_loader
 from video import TrainVideoRecorder, VideoRecorder
 import joblib
 import pickle
@@ -54,7 +53,7 @@ def make_expert(obs_spec, obs_sensor_spec, action_spec, cfg):
     cfg.action_shape = action_spec.shape
     return hydra.utils.instantiate(cfg)
 
-def print_stage3_time_est(time_used, curr_n_frames, total_n_frames):
+def print_time_est(time_used, curr_n_frames, total_n_frames):
     time_per_update = time_used / curr_n_frames
     est_total_time = time_per_update * total_n_frames
     est_time_remaining = est_total_time - time_used
@@ -74,7 +73,7 @@ class Workspace:
         self.device = torch.device(cfg.device)
         self.setup()
 
-        pretrained_encoder_path = self.work_dir.parents[3] / f'pretrained_encoders/{cfg.pretrained_encoder_model_name}_checkpoint.pth.tar'
+        pretrained_encoder_path = self.work_dir.parents[4] / f'pretrained_encoders/{cfg.pretrained_encoder_model_name}_checkpoint.pth.tar'
         self.agent = make_agent(self.train_env.observation_spec(),
                                 self.train_env.observation_sensor_spec(),
                                 self.train_env.action_spec(),
@@ -278,7 +277,7 @@ class Workspace:
                 episode_step_since_log, episode_reward_list, episode_frame_list = 0, [0], [0]
 
             if self.cfg.show_computation_time_est and self.global_step > 0 and self.global_step % self.cfg.show_time_est_interval == 0:
-                print_stage3_time_est(time.time() - training_start_time, self.global_frame + 1, self.cfg.num_train_frames)
+                print_time_est(time.time() - training_start_time, self.global_frame + 1, self.cfg.num_train_frames)
 
             # if reached end of episode
             if time_step.last():
@@ -308,7 +307,6 @@ class Workspace:
                 self.eval()
 
             # sample action
-            obs_sensor = time_step.observation_sensor
             with torch.no_grad(), utils.eval_mode(self.agent):
                 action = self.agent.act(time_step.observation,
                                         time_step.observation_sensor,
@@ -360,7 +358,7 @@ class Workspace:
             payload = torch.load(f)
         self.expert = payload['agent']
 
-@hydra.main(config_path='config_folder', config_name='config')
+@hydra.main(config_path='config_folder', config_name='config_RL_with_expert')
 def main(cfg):
     from train_RL_with_expert import Workspace as W
     root_dir = Path.cwd()
@@ -373,7 +371,6 @@ def main(cfg):
     workspace.load_expert(snapshot)
     workspace.store_expert_transitions()
     workspace.train()
-
 
 if __name__ == '__main__':
     main()
