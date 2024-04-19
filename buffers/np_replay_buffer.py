@@ -107,8 +107,9 @@ class EfficientReplayBuffer(AbstractReplayBuffer):
         nobs = np.reshape(self.obs[nobs_gather_ranges], [n_samples, *self.obs_shape])
 
         act = self.act[indices]
-        obs_sensor = self.obs_sensor[indices - 1]
-        next_obs_sensor = self.obs_sensor[indices + self.nstep - 1]
+        obs_sensor = self.obs_sensor[obs_gather_ranges[:, -1]]
+        next_obs_sensor = self.obs_sensor[nobs_gather_ranges[:, -1]]
+
         dis = np.expand_dims(self.next_dis * self.dis[nobs_gather_ranges[:, -1]], axis=-1)
 
         ret = (obs, obs_sensor, act, rew, dis, nobs, next_obs_sensor)
