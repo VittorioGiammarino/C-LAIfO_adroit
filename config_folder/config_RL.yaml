@@ -62,7 +62,7 @@ num_demo: 25
 stage2_n_update: 30000
 
 # ====== stage 3 ======
-num_seed_frames: 4000
+num_seed_frames: 0
 
 
 hydra:

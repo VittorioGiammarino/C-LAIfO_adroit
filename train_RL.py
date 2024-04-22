@@ -195,9 +195,81 @@ class Workspace:
         model_folder_path = os.path.join(data_folder_path, "pretrained_encoders")
         model_path = os.path.join(model_folder_path, stage1_model_name + '_checkpoint.pth.tar')
         return model_path
+    
+    def get_demo_path(self, env_name):
+        # given a environment name (with the -v0 part), return the path to its demo file
+        data_folder_path = self.get_data_folder_path()
+        demo_folder_path = os.path.join(data_folder_path, "demonstrations")
+        demo_path = os.path.join(demo_folder_path, env_name + "_demos.pickle")
+        return demo_path
+    
+    def load_demo(self, replay_buffer, env_name, verbose=True):
+        # will load demo data and put them into a replay storage
+        demo_path = self.get_demo_path(env_name)
+        if verbose:
+            print("Trying to get demo data from:", demo_path)
+
+        # get the raw state demo data, a list of length 25
+        demo_data = pickle.load(open(demo_path, 'rb'))
+        if self.cfg.num_demo >= 0:
+            demo_data = demo_data[:self.cfg.num_demo]
+
+        """
+        the adroit demo data is in raw state, so we need to convert them into image data
+        we init an env and run episodes with the stored actions in the demo data
+        then put the image and sensor data into the replay buffer, also need to clip actions here 
+        this part is basically following the RRL code
+        """
+        demo_env = AdroitEnv(env_name, test_image=False, num_repeats=1, num_frames=self.cfg.frame_stack,
+                env_feature_type=self.env_feature_type, device=self.device, reward_rescale=self.cfg.reward_rescale)
+        demo_env.reset()
+
+        total_data_count = 0
+        for i_path in range(len(demo_data)):
+            path = demo_data[i_path]
+            demo_env.reset()
+            demo_env.set_env_state(path['init_state_dict'])
+            time_step = demo_env.get_current_obs_without_reset()
+            replay_buffer.add(time_step)
+
+            ep_reward = 0
+            ep_n_goal = 0
+            for i_act in range(len(path['actions'])):
+                total_data_count += 1
+                action = path['actions'][i_act]
+                action = action.astype(np.float32)
+                # when action is put into the environment, they will be clipped.
+                action[action > 1] = 1
+                action[action < -1] = -1
+
+                # when they collect the demo data, they actually did not use a timelimit...
+                if i_act == len(path['actions']) - 1:
+                    force_step_type = 'last'
+                else:
+                    force_step_type = 'mid'
+
+                time_step = demo_env.step(action, force_step_type=force_step_type)
+                replay_buffer.add(time_step)
+
+                reward = time_step.reward
+                ep_reward += reward
+
+                goal_achieved = time_step.n_goal_achieved
+                ep_n_goal += goal_achieved
+            if verbose:
+                print('demo trajectory %d, len: %d, return: %.2f, goal achieved steps: %d' %
+                      (i_path, len(path['actions']), ep_reward, ep_n_goal))
+        if verbose:
+            print("Demo data load finished, total data count:", total_data_count)
 
     def train(self):
         training_start_time = time.time()
+
+        """========================================= LOAD DATA ========================================="""
+        if self.cfg.load_demo:
+            self.load_demo(self.replay_buffer, self.cfg.task_name)
+        print("Model and data loading finished in %.2f hours." % ((time.time()-training_start_time) / 3600))
+
         print("\n=== Training started! ===")
         """=================================== LOAD PRETRAINED MODEL ==================================="""
         if self.cfg.pretrained_encoder:

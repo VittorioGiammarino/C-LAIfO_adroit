@@ -12,6 +12,7 @@ expert_source_policies_POMDP_latent_model/**
 expert_policies/**
 pretrained_encoders/**
 vrl3data/**
+demonstrations/**
 
 *.sh
 *.mp4
