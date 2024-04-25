@@ -19,7 +19,15 @@ class VideoRecorder:
         self.frames = []
 
     def init(self, env, enabled=True):
-        self.frames = []
+        self.env_name = env.env_name
+
+        if self.env_name == 'relocate-v0':
+            self.cam_1 = []
+            self.cam_2 = []
+            self.cam_3 = []
+        else:
+            self.frames = []
+
         self.enabled = self.save_dir is not None and enabled
         self.record(env)
 
@@ -33,12 +41,25 @@ class VideoRecorder:
                 frame = env.get_pixels_with_width_height(self.render_size, self.render_size)
                 frame = frame.transpose((1, 2, 0))
 
-            self.frames.append(frame[:,:,:3])
+            if self.env_name == 'relocate-v0':
+                self.cam_1.append(frame[:,:,:3])
+                self.cam_2.append(frame[:,:,3:6])
+                self.cam_3.append(frame[:,:,6:])
+
+            else:
+                self.frames.append(frame)
 
     def save(self, file_name):
         if self.enabled:
-            path = self.save_dir / file_name
-            imageio.mimsave(str(path), self.frames, fps=self.fps)
+
+            if self.env_name == 'relocate-v0':
+                imageio.mimsave(str(self.save_dir) + '/cam_1_' + str(file_name), self.cam_1, fps=self.fps)
+                imageio.mimsave(str(self.save_dir) + '/cam_2_' + str(file_name), self.cam_2, fps=self.fps)
+                imageio.mimsave(str(self.save_dir) + '/cam_3_' + str(file_name), self.cam_3, fps=self.fps)
+
+            else:
+                path = self.save_dir / file_name
+                imageio.mimsave(str(path), self.frames, fps=self.fps)
 
 
 class TrainVideoRecorder:

@@ -229,6 +229,7 @@ class AdroitEnv:
     # a wrapper class that will make Adroit env looks like a dmc env
     def __init__(self, env_name, test_image=False, cam_list=None,
         num_repeats=2, num_frames=3, env_feature_type='pixels', device=None, reward_rescale=False): 
+
         default_env_to_cam_list = {
             'hammer-v0': ['top'],
             'door-v0': ['top'],
@@ -298,13 +299,13 @@ class AdroitEnv:
         action = np.zeros(action_spec.shape, dtype=action_spec.dtype)
 
         time_step = ExtendedTimeStepAdroit(observation=obs_pixels,
-                                     observation_sensor=obs_sensor,
-                                step_type=StepType.FIRST,
-                                action=action,
-                                reward=0.0,
-                                discount=1.0,
-                                n_goal_achieved=0,
-                                time_limit_reached=False)
+                                    observation_sensor=obs_sensor,
+                                    step_type=StepType.FIRST,
+                                    action=action,
+                                    reward=0.0,
+                                    discount=1.0,
+                                    n_goal_achieved=0,
+                                    time_limit_reached=False)
         return time_step
 
     def get_current_obs_without_reset(self):
