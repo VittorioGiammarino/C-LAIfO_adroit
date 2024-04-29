@@ -235,7 +235,7 @@ class Workspace:
             episode += 1
             self.video_recorder.save(f'{self.global_frame}.mp4')
 
-        success_rate_standard = total_success / self.cfg.num_expert_episodes
+        success_rate_standard = total_success / self.cfg.num_eval_episodes
         episode_reward_standard = total_reward / episode
         episode_length_standard = step*self.cfg.action_repeat / episode
 
