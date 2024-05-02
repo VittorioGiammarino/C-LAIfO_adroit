@@ -1,6 +1,7 @@
 defaults:
   - _self_
-  - task@_global_: door
+  - task_agent@_global_: door
+  - task_expert@_global_: door
   - replay_buffer@_global_: numpy
   - replay_buffer_expert@_global_: numpy
   - agent@_global_: laifo
@@ -52,6 +53,14 @@ GAN_loss: bce
 from_dem: false
 add_aug: true
 
+# other
+check_every_steps: 5000
+apply_aug: 'CL-Q' # adds additional augmentations to BYOL and CL agents
+add_aug_anchor_and_positive: true # adds augmentations to both anchors and positives
+aug_type: 'brightness' # augmentation type [full, color, brightness]
+train_encoder_w_critic: true
+CL_data_type: agent # agent, expert
+
 # pretrained_encoder_config
 pretrained_encoder: false
 encoder_lr_scale: 1
@@ -75,9 +84,9 @@ num_seed_frames: 4000
 
 hydra:
   run: # this "dir" decides where the training logs are stored
-    dir: ./experiments/exp_${task_name}/RL_plus_IL=${RL_plus_IL}_GAN_loss=${GAN_loss}/${agent_name}_pretrained_encoder=${pretrained_encoder}/${now:%H%M%S}_${hydra.job.override_dirname}
+    dir: ./experiments/exp_${task_name_agent}_${task_name_expert}/RL_plus_IL=${RL_plus_IL}_GAN_loss=${GAN_loss}/${agent_name}_pretrained_encoder=${pretrained_encoder}/${now:%H%M%S}_${hydra.job.override_dirname}
   sweep:
-    dir: ./experiments/exp_${task_name}/RL_plus_IL=${RL_plus_IL}_GAN_loss=${GAN_loss}/${agent_name}_pretrained_encoder=${pretrained_encoder}/
+    dir: ./experiments/exp_${task_name_agent}_${task_name_expert}/RL_plus_IL=${RL_plus_IL}_GAN_loss=${GAN_loss}/${agent_name}_pretrained_encoder=${pretrained_encoder}/
     subdir: ${now:%Y.%m.%d}_${now:%H%M}_${hydra.job.override_dirname}
   launcher:
     timeout_min: 4300

@@ -232,8 +232,14 @@ class AdroitEnv:
 
         default_env_to_cam_list = {
             'hammer-v0': ['top'],
+            'hammer_light-v0': ['top'],
+            'hammer_color-v0': ['top'],
             'door-v0': ['top'],
+            'door_light-v0': ['top'],
+            'door_color-v0': ['top'],
             'pen-v0': ['vil_camera'],
+            'pen_light-v0': ['vil_camera'],
+            'pen_color-v0': ['vil_camera'],
             'relocate-v0': ['cam1', 'cam2', 'cam3',],
         }
         if cam_list is None:
@@ -241,8 +247,14 @@ class AdroitEnv:
         self.env_name = env_name
         reward_rescale_dict = {
             'hammer-v0': 1/100,
+            'hammer_light-v0': 1/100,
+            'hammer_color-v0': 1/100,
             'door-v0': 1/20,
+            'door_light-v0': 1/20,
+            'door_color-v0': 1/20,
             'pen-v0': 1/50,
+            'pen_light-v0': 1/50,
+            'pen_color-v0': 1/50,
             'relocate-v0': 1/30,
         }
         if reward_rescale:

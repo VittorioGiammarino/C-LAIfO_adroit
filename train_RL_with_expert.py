@@ -89,8 +89,18 @@ class Workspace:
 
         # create logger
         self.logger = Logger(self.work_dir, use_tb=self.cfg.use_tb)
-        env_name = self.cfg.task_name
-        env_type = 'adroit' if env_name in ('hammer-v0','door-v0','pen-v0','relocate-v0') else NotImplementedError
+        env_name = self.cfg.task_name_agent
+        env_type = 'adroit' if env_name in ('hammer-v0',
+                                            'hammer_light-v0',
+                                            'hammer_color-v0',
+                                            'door-v0',
+                                            'pen-v0',
+                                            'pen_light-v0',
+                                            'pen_color-v0',
+                                            'relocate-v0', 
+                                            'door_light-v0',
+                                            'door_color-v0') else NotImplementedError
+        
         # assert env_name in ('hammer-v0','door-v0','pen-v0','relocate-v0',)
 
         self.env_feature_type = self.cfg.env_feature_type
@@ -124,7 +134,8 @@ class Workspace:
         # create replay buffer
         self.replay_buffer = hydra.utils.instantiate(self.cfg.replay_buffer, data_specs=data_specs)
 
-        self.expert_env = AdroitEnv(env_name, 
+        env_name_expert = self.cfg.task_name_expert
+        self.expert_env = AdroitEnv(env_name_expert, 
                                     test_image=False, 
                                     num_repeats=self.cfg.action_repeat,
                                     num_frames=self.cfg.frame_stack, 
@@ -183,7 +194,7 @@ class Workspace:
                 total_reward += time_step.reward
                 step += 1
 
-            if self.cfg.task_name == 'pen-v0':
+            if self.cfg.task_name_expert == 'pen-v0':
                 threshold = 20
             else:
                 threshold = 25
@@ -225,7 +236,7 @@ class Workspace:
                 total_reward += time_step.reward
                 step += 1
 
-            if self.cfg.task_name == 'pen-v0':
+            if self.cfg.task_name_agent == 'pen-v0':
                 threshold = 20
             else:
                 threshold = 25
@@ -364,7 +375,7 @@ def main(cfg):
     root_dir = Path.cwd()
     workspace = W(cfg)
     parent_dir = root_dir.parents[4]
-    snapshot = parent_dir / f'expert_policies/snapshot_{cfg.task_name}_action_repeat={cfg.action_repeat}_frame_stack={cfg.frame_stack}.pt'
+    snapshot = parent_dir / f'expert_policies/snapshot_{cfg.task_name_expert}_action_repeat={cfg.action_repeat}_frame_stack={cfg.frame_stack}.pt'
     print(snapshot)
     assert snapshot.exists()
     print(f'loading expert target: {snapshot}')

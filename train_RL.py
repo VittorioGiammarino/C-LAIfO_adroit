@@ -86,7 +86,16 @@ class Workspace:
         # create logger
         self.logger = Logger(self.work_dir, use_tb=self.cfg.use_tb)
         env_name = self.cfg.task_name
-        env_type = 'adroit' if env_name in ('hammer-v0','door-v0','pen-v0','relocate-v0') else NotImplementedError
+        env_type = 'adroit' if env_name in ('hammer-v0',
+                                            'hammer_light-v0',
+                                            'hammer_color-v0',
+                                            'door-v0',
+                                            'pen-v0',
+                                            'pen_light-v0',
+                                            'pen_color-v0',
+                                            'relocate-v0', 
+                                            'door_light-v0',
+                                            'door_color-v0') else NotImplementedError
         # assert env_name in ('hammer-v0','door-v0','pen-v0','relocate-v0',)
 
         if self.cfg.agent.encoder_lr_scale == 'auto':

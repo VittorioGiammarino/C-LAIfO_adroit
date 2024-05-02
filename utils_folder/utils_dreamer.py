@@ -21,6 +21,21 @@ from torch import distributions as torchd
 from torch.utils.data import Dataset
 from torch.utils.tensorboard import SummaryWriter
 
+def default(val, def_val):
+    return def_val if val is None else val
+
+# augmentation utils
+
+class RandomApply(nn.Module):
+    def __init__(self, fn, p):
+        super().__init__()
+        self.fn = fn
+        self.p = p
+    def forward(self, x):
+        if random.random() > self.p:
+            return x
+        return self.fn(x)
+
 def make_dir(*path_parts):
     dir_path = os.path.join(*path_parts)
     try:

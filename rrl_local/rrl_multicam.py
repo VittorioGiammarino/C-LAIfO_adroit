@@ -9,7 +9,16 @@ from PIL import Image
 import torch
 from collections import deque
 
-_mj_envs = {'pen-v0', 'hammer-v0', 'door-v0', 'relocate-v0'}
+_mj_envs = {'pen-v0', 
+            'pen_light-v0', 
+            'pen_color-v0',
+            'hammer-v0', 
+            'hammer_light-v0', 
+            'hammer_color-v0', 
+            'door-v0', 
+            'door_light-v0', 
+            'door_color-v0', 
+            'relocate-v0'}
 
 def make_encoder(encoder, encoder_type, device, is_eval=True) :
     if not encoder :
@@ -83,9 +92,21 @@ class BasicAdroitEnv(gym.Env): # , ABC
 
         if self.env_id == 'pen-v0':
             qp = qp[:-6]
+        elif self.env_id == 'pen_light-v0':
+            qp = qp[:-6]
+        elif self.env_id == 'pen_color-v0':
+            qp = qp[:-6]
         elif self.env_id == 'door-v0':
             qp = qp[4:-2]
+        elif self.env_id == 'door_light-v0':
+            qp = qp[4:-2]
+        elif self.env_id == 'door_color-v0':
+            qp = qp[4:-2]
         elif self.env_id == 'hammer-v0':
+            qp = qp[2:-7]
+        elif self.env_id == 'hammer_light-v0':
+            qp = qp[2:-7]
+        elif self.env_id == 'hammer_color-v0':
             qp = qp[2:-7]
         elif self.env_id == 'relocate-v0':
             qp = qp[6:-6]
