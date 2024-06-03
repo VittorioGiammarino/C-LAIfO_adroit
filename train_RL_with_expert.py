@@ -8,7 +8,7 @@ import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
 import platform
-os.environ['MUJOCO_GL'] = 'egl'
+os.environ['MUJOCO_GL'] = "osmesa" #'egl'
 # set to glfw if trying to render locally with a monitor
 # os.environ['MUJOCO_GL'] = 'glfw'
 #os.environ['EGL_DEVICE_ID'] = '0'
