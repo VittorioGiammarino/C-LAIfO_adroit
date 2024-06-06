@@ -307,9 +307,11 @@ class Workspace:
                 time_step = self.train_env.reset()
                 self.replay_buffer.add(time_step)
                 self.train_video_recorder.init(time_step.observation)
+                
                 # try to save snapshot
                 if self.cfg.save_snapshot:
                     self.save_snapshot()
+
                 episode_step, episode_reward = 0, 0
 
             # try to evaluate
